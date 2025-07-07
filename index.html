@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Data Visualization Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.26.0/plotly.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        transition: all 0.3s ease;
+      }
+
+      .whole-container {
+        width: 100%;
+        min-height: 100vh;
+        transition: all 0.3s ease;
+      }
+
+      .main-container {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 30px;
+        min-height: 100vh;
+        transition: all 0.3s ease;
+      }
+
+      .title {
+        text-align: center;
+        margin-bottom: 40px;
+        font-size: 2.5rem;
+        font-weight: 300;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        transition: color 0.3s ease;
+      }
+
+      .card {
+        margin-bottom: 30px;
+        padding: 25px;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+      }
+
+      .controls-row {
+        display: flex;
+        gap: 3%;
+        margin-bottom: 20px;
+      }
+
+      .control-group {
+        flex: 1;
+      }
+
+      .control-label {
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: block;
+        font-size: 16px;
+      }
+
+      .dropdown {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-family: "Segoe UI", Arial, sans-serif;
+        font-size: 14px;
+        background: white;
+      }
+
+      .checkbox-container {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .checkbox-group {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
+
+      .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .checkbox-item input[type="checkbox"] {
+        margin: 0;
+      }
+
+      .checkbox-item label {
+        margin: 0;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      .plot-container {
+        margin-bottom: 30px;
+        border-radius: 15px;
+        padding: 20px;
+        transition: all 0.3s ease;
+      }
+
+      .plot-div {
+        width: 100%;
+        height: 550px;
+      }
+
+      /* Light theme */
+      .light {
+        background-color: #f8fafc;
+        color: #2c3e50;
+      }
+
+      .light .main-container {
+        background-color: #f8fafc;
+      }
+
+      .light .title {
+        color: #2c3e50;
+      }
+
+      .light .card {
+        background-color: white;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e8e9ea;
+      }
+
+      .light .control-label {
+        color: #2c3e50;
+      }
+
+      .light .dropdown {
+        background-color: white;
+        color: #2c3e50;
+        border-color: #ddd;
+      }
+
+      .light .plot-container {
+        background-color: white;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e8e9ea;
+      }
+
+      /* Dark theme */
+      .dark {
+        background-color: #1e1e1e;
+        color: #ffffff;
+      }
+
+      .dark .main-container {
+        background-color: #1e1e1e;
+      }
+
+      .dark .title {
+        color: #ffffff;
+      }
+
+      .dark .card {
+        background-color: #2d2d2d;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        border: 1px solid #404040;
+      }
+
+      .dark .control-label {
+        color: #ffffff;
+      }
+
+      .dark .dropdown {
+        background-color: #2d2d2d;
+        color: #ffffff;
+        border-color: #404040;
+      }
+
+      .dark .plot-container {
+        background-color: #2d2d2d;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        border: 1px solid #404040;
+      }
+
+      @media (max-width: 768px) {
+        .controls-row {
+          flex-direction: column;
+          gap: 15px;
+        }
+
+        .checkbox-container {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+
+        .checkbox-group {
+          flex-wrap: wrap;
+        }
+      }
+    </style>
+  </head>
+  <body class="light">
+    <div class="whole-container">
+      <div class="main-container">
+        <h1 class="title">Interactive Data Visualization Dashboard</h1>
+
+        <!-- Controls -->
+        <div class="card">
+          <div class="controls-row">
+            <div class="control-group">
+              <label class="control-label">Technique:</label>
+              <select id="technique-dropdown" class="dropdown" multiple>
+                <option value="QIR" selected>QIR</option>
+                <option value="FBP" selected>FBP</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label class="control-label">VMI:</label>
+              <select id="vmi-dropdown" class="dropdown" multiple>
+                <option value="50 keV" selected>50 keV</option>
+                <option value="55 keV" selected>55 keV</option>
+                <option value="60 keV" selected>60 keV</option>
+                <option value="65 keV" selected>65 keV</option>
+                <option value="70 keV" selected>70 keV</option>
+                <option value="T3D" selected>T3D</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label class="control-label">Insert:</label>
+              <select id="insert-dropdown" class="dropdown" multiple>
+                <option value="Acrylic" selected>Acrylic</option>
+                <option value="Air" selected>Air</option>
+                <option value="Bone" selected>Bone</option>
+                <option value="Low Contrast" selected>Low Contrast</option>
+                <option value="Polyethylene" selected>Polyethylene</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Plot Options -->
+        <div class="card">
+          <div class="checkbox-container">
+            <div>
+              <label class="control-label">Plots to Display:</label>
+              <div class="checkbox-group">
+                <div class="checkbox-item">
+                  <input type="checkbox" id="show-lsf" checked />
+                  <label for="show-lsf">Line Spread Function</label>
+                </div>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="show-esf" checked />
+                  <label for="show-esf">Edge Spread Function</label>
+                </div>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="show-contrast" checked />
+                  <label for="show-contrast">Contrast Resolution</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="checkbox-container">
+            <div>
+              <label class="control-label">Options:</label>
+              <div class="checkbox-group">
+                <div class="checkbox-item">
+                  <input type="checkbox" id="show-bands" checked />
+                  <label for="show-bands">Show Error Bands</label>
+                </div>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="smooth-lsf" />
+                  <label for="smooth-lsf">Smooth LSF</label>
+                </div>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="dark-mode" />
+                  <label for="dark-mode">Dark Mode</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Plots Container -->
+        <div id="plots-container"></div>
+      </div>
+    </div>
+
+    <script>
+      // Sample data (equivalent to the frames in your Dash app)
+      const frames = [
+        {
+          technique: "QIR",
+          vmi: "50 keV",
+          insert: "Acrylic",
+          spatial_location: [0, 1, 2, 3, 4],
+          line_spread_function: [0.8, 0.9, 1.0, 0.9, 0.8],
+          edge_spread_function: [0.1, 0.3, 0.7, 0.9, 1.0],
+          spatial_frequency: [0, 0.5, 1.0, 1.5, 2.0],
+          contrast: [1.0, 0.8, 0.6, 0.4, 0.2],
+          contrast_upper: [1.1, 0.9, 0.7, 0.5, 0.3],
+          contrast_lower: [0.9, 0.7, 0.5, 0.3, 0.1],
+          filename: "qir_50_acrylic.csv",
+        },
+        {
+          technique: "FBP",
+          vmi: "55 keV",
+          insert: "Bone",
+          spatial_location: [0, 1, 2, 3, 4],
+          line_spread_function: [0.7, 0.8, 0.9, 0.8, 0.7],
+          edge_spread_function: [0.1, 0.4, 0.8, 0.9, 1.0],
+          spatial_frequency: [0, 0.5, 1.0, 1.5, 2.0],
+          contrast: [0.9, 0.7, 0.5, 0.3, 0.1],
+          contrast_upper: [1.0, 0.8, 0.6, 0.4, 0.2],
+          contrast_lower: [0.8, 0.6, 0.4, 0.2, 0.05],
+          filename: "fbp_55_bone.csv",
+        },
+        {
+          technique: "QIR",
+          vmi: "60 keV",
+          insert: "Air",
+          spatial_location: [0, 1, 2, 3, 4],
+          line_spread_function: [0.75, 0.85, 0.95, 0.85, 0.75],
+          edge_spread_function: [0.05, 0.25, 0.65, 0.85, 0.95],
+          spatial_frequency: [0, 0.5, 1.0, 1.5, 2.0],
+          contrast: [0.95, 0.75, 0.55, 0.35, 0.15],
+          contrast_upper: [1.05, 0.85, 0.65, 0.45, 0.25],
+          contrast_lower: [0.85, 0.65, 0.45, 0.25, 0.05],
+          filename: "qir_60_air.csv",
+        },
+      ];
+
+      // Color palette
+      const colors = [
+        "#3498db",
+        "#e74c3c",
+        "#2ecc71",
+        "#f39c12",
+        "#9b59b6",
+        "#1abc9c",
+        "#e67e22",
+        "#34495e",
+        "#fd79a8",
+        "#00b894",
+      ];
+
+      // Theme management
+      function getThemeStyles(isDark) {
+        return isDark
+          ? {
+              bg_color: "#1e1e1e",
+              card_bg: "#2d2d2d",
+              text_color: "#ffffff",
+              border_color: "#404040",
+              plot_bg: "#2d2d2d",
+              grid_color: "#404040",
+              title_color: "#ffffff",
+            }
+          : {
+              bg_color: "#f8fafc",
+              card_bg: "white",
+              text_color: "#2c3e50",
+              border_color: "#e8e9ea",
+              plot_bg: "white",
+              grid_color: "#ecf0f1",
+              title_color: "#2c3e50",
+            };
+      }
+
+      // Update theme
+      function updateTheme() {
+        const isDark = document.getElementById("dark-mode").checked;
+        document.body.className = isDark ? "dark" : "light";
+        updatePlots();
+      }
+
+      // Smooth data function
+      function smoothData(yData, windowSize = 5) {
+        if (yData.length < windowSize) return yData;
+
+        const smoothed = [];
+        for (let i = 0; i < yData.length; i++) {
+          const start = Math.max(0, i - Math.floor(windowSize / 2));
+          const end = Math.min(yData.length, start + windowSize);
+          const sum = yData.slice(start, end).reduce((a, b) => a + b, 0);
+          smoothed.push(sum / (end - start));
+        }
+        return smoothed;
+      }
+
+      // Filter frames based on selections
+      function filterFrames() {
+        const techniques = Array.from(
+          document.getElementById("technique-dropdown").selectedOptions
+        ).map((opt) => opt.value);
+        const vmis = Array.from(
+          document.getElementById("vmi-dropdown").selectedOptions
+        ).map((opt) => opt.value);
+        const inserts = Array.from(
+          document.getElementById("insert-dropdown").selectedOptions
+        ).map((opt) => opt.value);
+
+        return frames.filter(
+          (frame) =>
+            techniques.includes(frame.technique) &&
+            vmis.includes(frame.vmi) &&
+            inserts.includes(frame.insert)
+        );
+      }
+
+      // Generate dynamic title
+      function generateTitle(plotType, techniques, vmis, inserts) {
+        let title = plotType;
+        const allTechniques = ["QIR", "FBP"];
+        const allVmis = [
+          "50 keV",
+          "55 keV",
+          "60 keV",
+          "65 keV",
+          "70 keV",
+          "T3D",
+        ];
+        const allInserts = [
+          "Acrylic",
+          "Air",
+          "Bone",
+          "Low Contrast",
+          "Polyethylene",
+        ];
+
+        if (techniques.length > 0 && techniques.length < allTechniques.length) {
+          title += ` - ${techniques.join(", ")}`;
+        }
+        if (vmis.length > 0 && vmis.length < allVmis.length) {
+          title += ` - ${vmis.join(", ")}`;
+        }
+        if (inserts.length > 0 && inserts.length < allInserts.length) {
+          title += ` - ${inserts.join(", ")}`;
+        }
+        return title;
+      }
+
+      // Create LSF plot
+      function createLSFPlot(filteredFrames, smooth = false) {
+        const isDark = document.body.className === "dark";
+        const theme = getThemeStyles(isDark);
+
+        const traces = filteredFrames.map((frame, i) => {
+          let yData = frame.line_spread_function;
+          if (smooth) {
+            yData = smoothData(yData);
+          }
+
+          return {
+            x: frame.spatial_location,
+            y: yData,
+            type: "scatter",
+            mode: "lines+markers",
+            name: `${frame.technique} ${frame.vmi} ${frame.insert}`,
+            line: { color: colors[i % colors.length], width: 4 },
+            marker: {
+              color: colors[i % colors.length],
+              size: 8,
+              line: { width: 2, color: theme.plot_bg },
+            },
+          };
+        });
+
+        const techniques = [...new Set(filteredFrames.map((f) => f.technique))];
+        const vmis = [...new Set(filteredFrames.map((f) => f.vmi))];
+        const inserts = [...new Set(filteredFrames.map((f) => f.insert))];
+
+        let title = "Line Spread Function";
+        if (smooth) title += " (Smoothed)";
+
+        const layout = {
+          title: {
+            text: generateTitle(title, techniques, vmis, inserts),
+            x: 0.5,
+            font: {
+              size: 24,
+              family: "Segoe UI, Arial, sans-serif",
+              color: theme.title_color,
+            },
+          },
+          xaxis: {
+            title: "Spatial Location (cm)",
+            gridcolor: theme.grid_color,
+            tickfont: { color: theme.text_color },
+            titlefont: { color: theme.text_color, size: 16 },
+          },
+          yaxis: {
+            title: "Line Spread Function (LSF)",
+            gridcolor: theme.grid_color,
+            tickfont: { color: theme.text_color },
+            titlefont: { color: theme.text_color, size: 16 },
+          },
+          plot_bgcolor: theme.plot_bg,
+          paper_bgcolor: theme.plot_bg,
+          font: {
+            family: "Segoe UI, Arial, sans-serif",
+            color: theme.text_color,
+          },
+          legend: {
+            bgcolor: `rgba(${isDark ? "45,45,45" : "255,255,255"},0.9)`,
+            bordercolor: isDark ? "#555555" : "#bdc3c7",
+            borderwidth: 2,
+          },
+        };
+
+        return { data: traces, layout };
+      }
+
+      // Create ESF plot
+      function createESFPlot(filteredFrames) {
+        const isDark = document.body.className === "dark";
+        const theme = getThemeStyles(isDark);
+
+        const traces = filteredFrames.map((frame, i) => ({
+          x: frame.spatial_location,
+          y: frame.edge_spread_function,
+          type: "scatter",
+          mode: "lines+markers",
+          name: `${frame.technique} ${frame.vmi} ${frame.insert}`,
+          line: { color: colors[i % colors.length], width: 4 },
+          marker: {
+            color: colors[i % colors.length],
+            size: 8,
+            line: { width: 2, color: theme.plot_bg },
+          },
+        }));
+
+        const techniques = [...new Set(filteredFrames.map((f) => f.technique))];
+        const vmis = [...new Set(filteredFrames.map((f) => f.vmi))];
+        const inserts = [...new Set(filteredFrames.map((f) => f.insert))];
+
+        const layout = {
+          title: {
+            text: generateTitle(
+              "Edge Spread Function",
+              techniques,
+              vmis,
+              inserts
+            ),
+            x: 0.5,
+            font: {
+              size: 24,
+              family: "Segoe UI, Arial, sans-serif",
+              color: theme.title_color,
+            },
+          },
+          xaxis: {
+            title: "Spatial Location (cm)",
+            gridcolor: theme.grid_color,
+            tickfont: { color: theme.text_color },
+            titlefont: { color: theme.text_color, size: 16 },
+          },
+          yaxis: {
+            title: "Edge Spread Function (ESF)",
+            gridcolor: theme.grid_color,
+            tickfont: { color: theme.text_color },
+            titlefont: { color: theme.text_color, size: 16 },
+          },
+          plot_bgcolor: theme.plot_bg,
+          paper_bgcolor: theme.plot_bg,
+          font: {
+            family: "Segoe UI, Arial, sans-serif",
+            color: theme.text_color,
+          },
+          legend: {
+            bgcolor: `rgba(${isDark ? "45,45,45" : "255,255,255"},0.9)`,
+            bordercolor: isDark ? "#555555" : "#bdc3c7",
+            borderwidth: 2,
+          },
+        };
+
+        return { data: traces, layout };
+      }
+
+      // Create Contrast plot
+      function createContrastPlot(filteredFrames, showBands = true) {
+        const isDark = document.body.className === "dark";
+        const theme = getThemeStyles(isDark);
+
+        const traces = [];
+
+        filteredFrames.forEach((frame, i) => {
+          const color = colors[i % colors.length];
+          const name = `${frame.technique} ${frame.vmi} ${frame.insert}`;
+
+          if (showBands) {
+            // Convert hex to rgb for transparency
+            const rgb = {
+              r: parseInt(color.slice(1, 3), 16),
+              g: parseInt(color.slice(3, 5), 16),
+              b: parseInt(color.slice(5, 7), 16),
+            };
+
+            // Upper bound (invisible)
+            traces.push({
+              x: frame.spatial_frequency,
+              y: frame.contrast_upper,
+              type: "scatter",
+              mode: "lines",
+              line: { width: 0, color: color },
+              showlegend: false,
+              hoverinfo: "skip",
+            });
+
+            // Lower bound with fill
+            traces.push({
+              x: frame.spatial_frequency,
+              y: frame.contrast_lower,
+              type: "scatter",
+              mode: "lines",
+              line: { width: 0, color: color },
+              fill: "tonexty",
+              fillcolor: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.15)`,
+              showlegend: false,
+              hoverinfo: "skip",
+            });
+          }
+
+          // Main line
+          traces.push({
+            x: frame.spatial_frequency,
+            y: frame.contrast,
+            type: "scatter",
+            mode: "lines+markers",
+            name: name,
+            line: { color: color, width: 4 },
+            marker: {
+              color: color,
+              size: 8,
+              line: { width: 2, color: theme.plot_bg },
+            },
+          });
+        });
+
+        const techniques = [...new Set(filteredFrames.map((f) => f.technique))];
+        const vmis = [...new Set(filteredFrames.map((f) => f.vmi))];
+        const inserts = [...new Set(filteredFrames.map((f) => f.insert))];
+
+        const layout = {
+          title: {
+            text: generateTitle(
+              "Contrast Dependent Spatial Resolution",
+              techniques,
+              vmis,
+              inserts
+            ),
+            x: 0.5,
+            font: {
+              size: 24,
+              family: "Segoe UI, Arial, sans-serif",
+              color: theme.title_color,
+            },
+          },
+          xaxis: {
+            title: "Spatial Frequency (1/cm)",
+            gridcolor: theme.grid_color,
+            tickfont: { color: theme.text_color },
+            titlefont: { color: theme.text_color, size: 16 },
+          },
+          yaxis: {
+            title: "Contrast Dependent Spatial Resolution (MTFc)",
+            gridcolor: theme.grid_color,
+            tickfont: { color: theme.text_color },
+            titlefont: { color: theme.text_color, size: 16 },
+          },
+          plot_bgcolor: theme.plot_bg,
+          paper_bgcolor: theme.plot_bg,
+          font: {
+            family: "Segoe UI, Arial, sans-serif",
+            color: theme.text_color,
+          },
+          legend: {
+            bgcolor: `rgba(${isDark ? "45,45,45" : "255,255,255"},0.9)`,
+            bordercolor: isDark ? "#555555" : "#bdc3c7",
+            borderwidth: 2,
+          },
+        };
+
+        return { data: traces, layout };
+      }
+
+      // Update all plots
+      function updatePlots() {
+        const filteredFrames = filterFrames();
+        const showLSF = document.getElementById("show-lsf").checked;
+        const showESF = document.getElementById("show-esf").checked;
+        const showContrast = document.getElementById("show-contrast").checked;
+        const showBands = document.getElementById("show-bands").checked;
+        const smoothLSF = document.getElementById("smooth-lsf").checked;
+
+        const container = document.getElementById("plots-container");
+        container.innerHTML = "";
+
+        if (showLSF) {
+          const plotDiv = document.createElement("div");
+          plotDiv.className = "plot-container";
+          plotDiv.innerHTML = '<div class="plot-div" id="lsf-plot"></div>';
+          container.appendChild(plotDiv);
+
+          const { data, layout } = createLSFPlot(filteredFrames, smoothLSF);
+          Plotly.newPlot("lsf-plot", data, layout, { responsive: true });
+        }
+
+        if (showESF) {
+          const plotDiv = document.createElement("div");
+          plotDiv.className = "plot-container";
+          plotDiv.innerHTML = '<div class="plot-div" id="esf-plot"></div>';
+          container.appendChild(plotDiv);
+
+          const { data, layout } = createESFPlot(filteredFrames);
+          Plotly.newPlot("esf-plot", data, layout, { responsive: true });
+        }
+
+        if (showContrast) {
+          const plotDiv = document.createElement("div");
+          plotDiv.className = "plot-container";
+          plotDiv.innerHTML = '<div class="plot-div" id="contrast-plot"></div>';
+          container.appendChild(plotDiv);
+
+          const { data, layout } = createContrastPlot(
+            filteredFrames,
+            showBands
+          );
+          Plotly.newPlot("contrast-plot", data, layout, { responsive: true });
+        }
+      }
+
+      // Event listeners
+      document
+        .getElementById("technique-dropdown")
+        .addEventListener("change", updatePlots);
+      document
+        .getElementById("vmi-dropdown")
+        .addEventListener("change", updatePlots);
+      document
+        .getElementById("insert-dropdown")
+        .addEventListener("change", updatePlots);
+      document
+        .getElementById("show-lsf")
+        .addEventListener("change", updatePlots);
+      document
+        .getElementById("show-esf")
+        .addEventListener("change", updatePlots);
+      document
+        .getElementById("show-contrast")
+        .addEventListener("change", updatePlots);
+      document
+        .getElementById("show-bands")
+        .addEventListener("change", updatePlots);
+      document
+        .getElementById("smooth-lsf")
+        .addEventListener("change", updatePlots);
+      document
+        .getElementById("dark-mode")
+        .addEventListener("change", updateTheme);
+
+      // Initialize
+      updatePlots();
+    </script>
+  </body>
+</html>
