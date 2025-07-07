@@ -293,7 +293,15 @@
 
     <script>
       // Sample data (equivalent to the frames in your Dash app)
-      const frames = fetch("./frames.json");
+      const frames_res = fetch("./frames.json");
+      let frames = [];
+      frames_res
+        .then((response) => response.json())
+        .then((data) => {
+          frames = data;
+          updatePlots();
+        })
+        .catch((error) => console.error("Error loading frames:", error));
 
       // Color palette
       const colors = [
