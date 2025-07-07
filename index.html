@@ -217,7 +217,7 @@
               <label class="control-label">Technique:</label>
               <select id="technique-dropdown" class="dropdown" multiple>
                 <option value="QIR" selected>QIR</option>
-                <option value="FBP" selected>FBP</option>
+                <option value="FBP">FBP</option>
               </select>
             </div>
             <div class="control-group">
@@ -235,10 +235,10 @@
               <label class="control-label">Insert:</label>
               <select id="insert-dropdown" class="dropdown" multiple>
                 <option value="Acrylic" selected>Acrylic</option>
-                <option value="Air" selected>Air</option>
-                <option value="Bone" selected>Bone</option>
-                <option value="Low Contrast" selected>Low Contrast</option>
-                <option value="Polyethylene" selected>Polyethylene</option>
+                <option value="Air">Air</option>
+                <option value="Bone">Bone</option>
+                <option value="Low Contrast">Low Contrast</option>
+                <option value="Polyethylene">Polyethylene</option>
               </select>
             </div>
           </div>
@@ -37829,7 +37829,7 @@
             x: frame.spatial_location,
             y: yData,
             type: "scatter",
-            mode: "lines+markers",
+            mode: "lines",
             name: `${frame.technique} ${frame.vmi} ${frame.insert}`,
             line: { color: colors[i % colors.length], width: 4 },
             marker: {
@@ -37894,7 +37894,7 @@
           x: frame.spatial_location,
           y: frame.edge_spread_function,
           type: "scatter",
-          mode: "lines+markers",
+          mode: "lines",
           name: `${frame.technique} ${frame.vmi} ${frame.insert}`,
           line: { color: colors[i % colors.length], width: 4 },
           marker: {
@@ -38000,7 +38000,7 @@
             x: frame.spatial_frequency,
             y: frame.contrast,
             type: "scatter",
-            mode: "lines+markers",
+            mode: "lines",
             name: name,
             line: { color: color, width: 4 },
             marker: {
