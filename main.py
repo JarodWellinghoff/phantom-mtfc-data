@@ -58,13 +58,13 @@ class DataLoader:
                 frame["technique"] = technique.upper()
                 frame["vmi"] = vmi
                 frame["insert"] = insert.title()
-                frame["spatial_location"] = spatial_location
-                frame["line_spread_function"] = line_spread_function
-                frame["edge_spread_function"] = edge_spread_function
-                frame["spatial_frequency"] = spatial_frequency
-                frame["contrast_upper"] = contrast_upper
-                frame["contrast"] = contrast
-                frame["contrast_lower"] = contrast_lower
+                frame["spatial_location"] = spatial_location.tolist()
+                frame["line_spread_function"] = line_spread_function.tolist()
+                frame["edge_spread_function"] = edge_spread_function.tolist()
+                frame["spatial_frequency"] = spatial_frequency.tolist()
+                frame["contrast_upper"] = contrast_upper.tolist()
+                frame["contrast"] = contrast.tolist()
+                frame["contrast_lower"] = contrast_lower.tolist()
                 frame["filename"] = filename
                 frames.append(frame)
         return frames
@@ -833,6 +833,12 @@ def load_frames_from_dataloader(data_loader):
     """Load frames from your DataLoader class"""
     global frames
     frames = data_loader.load_data()
+    # Save frames to a json file for persistence
+    if frames:
+        import json
+
+        with open("frames.json", "w") as f:
+            json.dump(frames, f, indent=4)
 
 
 if __name__ == "__main__":
