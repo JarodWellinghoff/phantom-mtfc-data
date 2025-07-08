@@ -293,12 +293,16 @@
 
     <script>
       // Sample data (equivalent to the frames in your Dash app)
-      const frames_res = fetch("./frames.json");
       let frames = [];
-      frames_res
-        .then((response) => response.json())
-        .then((data) => {
-          frames = data;
+      fetch("./frames.json")
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((json) => {
+          frames = json.data;
           updatePlots();
         })
         .catch((error) => console.error("Error loading frames:", error));
